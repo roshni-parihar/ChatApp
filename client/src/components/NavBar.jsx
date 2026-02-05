@@ -28,10 +28,10 @@ const NavBar = () => {
         {/* Left */}
         <div className="flex-1">
           <h1
-            className="text-xl font-bold cursor-pointer"
+            className="text-xl font-bold cursor-pointer  rounded-2xl w-fit px-3 py-1 outline-double"
             onClick={() => navigate("/")}
           >
-            Chat Karo
+            Vyakhyan
           </h1>
         </div>
 
@@ -56,7 +56,7 @@ const NavBar = () => {
           {!user ? (
             <>
               <button
-                className="btn btn-secondary btn-sm"
+                className="btn btn-gradient btn-secondary btn-sm"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -64,7 +64,7 @@ const NavBar = () => {
 
               {/* ✅ Register Button with path */}
               <button
-                className="btn btn-outline btn-sm"
+                className="btn  btn-gradient btn-accent  btn-sm"
                 onClick={() => navigate("/register")}
               >
                 Register
@@ -72,7 +72,7 @@ const NavBar = () => {
             </>
           ) : (
             <>
-              <span className="text-sm font-medium border rounded-2xl px-4 py-1">{user.fullName}</span>
+              <span className="text-sm font-medium border rounded-2xl px-4 py-1">{user.fullName|| ""}</span>
               <button
                 className="btn btn-outline btn-sm"
                 onClick={logout}

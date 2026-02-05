@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL:"http://localhost:4500",
-    withCredentials:true,
+    baseURL:import.meta.env.VITE_GOOGLE_CLIENT_ID,
+    withCredentials:true, 
 })
 
 
