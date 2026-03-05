@@ -1,24 +1,33 @@
 import mongoose from "mongoose";
 
-const chatSchema = mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
+const userSchema = new mongoose.Schema(
+  {
+    fullName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    mobileNumber: {
+      type: String,
+    },
+    password: {
+      type: String,
+    },
+    googleId: {
+      type: String,
+    },
+    userType: {
+      type: String,
+      enum: ["google", "regular", "hybrid"],
+      required: true,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  mobileNumber: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  
-},{timestamps:true,});
-const Chat = mongoose.model("Chat", chatSchema);
-export default Chat;
+  { timestamps: true },
+);
+
+const User = mongoose.model("User", userSchema);
+export default User;

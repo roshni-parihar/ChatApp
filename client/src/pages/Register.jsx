@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import api from "../config/Api";
+import api from "../config/api";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -78,7 +78,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-base-200 to-base-300 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-base-200 to-base-300 px-4">
       <div className="card w-full max-w-xl bg-base-100 shadow-2xl">
         <div className="card-body">
           {/* Header */}

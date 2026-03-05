@@ -1,10 +1,13 @@
-import express from 'express';
-import{UserLogin, UserRegister , UserLogout} from "../controller/authController.js";
+import express from "express";
+import {
+  UserRegister,
+  UserLogin,
+  GoogleUserLogin,
+} from "../controller/authController.js";
+import { GoogleProtect } from "../middlewares/googleMiddleware.js";
 
-const router  = express.Router();
-
+const router = express.Router();
 router.post("/register", UserRegister);
 router.post("/login", UserLogin);
-router.get("/logout", UserLogout);
-
+router.post("/googleLogin", GoogleProtect, GoogleUserLogin);
 export default router;

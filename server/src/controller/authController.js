@@ -1,103 +1,132 @@
-import Chat from "../models/userModel.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import { genToken } from "../utils/authToken.js";
 
+// ================= REGISTER =================
 export const UserRegister = async (req, res, next) => {
   try {
-    console.log(req.body);
-    //accept data from Frontend
     const { fullName, email, mobileNumber, password } = req.body;
 
-    //verify that all data exist
     if (!fullName || !email || !mobileNumber || !password) {
-      const error = new Error("All feilds required");
+      const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
     }
 
-    console.log({ fullName, email, mobileNumber, password });
-
-    //Check for duplaicate user before registration
-    const existingChatUser = await Chat.findOne({ email });
-    if (existingChatUser) {
-      const error = new Error("Email already registered");
-      error.statusCode = 409;
+    // check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error("Email already exists");
+      error.statusCode = 400;
       return next(error);
     }
 
-    console.log("Sending Data to DB");
-
-    //encrypt the password
+    // hash password
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    console.log("Password Hashing Done. hashPassword = ", hashPassword);
-
-    const photoURL = `https://placehold.co/600x400?text=${fullName.charAt(0).toUpperCase()}`;
-    const photo = {
-      url: photoURL,
-    };
-
-    //save data to database
-    const newUser = await Chat.create({
+    await User.create({
       fullName,
-      email: email.toLowerCase(),
+      email,
       mobileNumber,
-      password: hashPassword,
-      photo,
+      password: hashedPassword,
+      userType: "regular",
     });
-    // send response to Frontend
-    console.log(newUser);
-    res.status(201).json({ message: "Registration Successfull" });
-    //End
+
+    res.status(201).json({ message: "Registration successful" });
   } catch (error) {
     next(error);
   }
 };
 
+// ================= LOGIN =================
 export const UserLogin = async (req, res, next) => {
   try {
-    //Fetch Data from Frontend
     const { email, password } = req.body;
 
-    //verify that all data exist
     if (!email || !password) {
-      const error = new Error("All feilds required");
+      const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
     }
 
-    //Check if user is registred or not
-    const existingUser = await Chat.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (!existingUser) {
       const error = new Error("Email not registered");
-      error.statusCode = 401;
+      error.statusCode = 400;
       return next(error);
     }
 
-    //verify the Password
-    const isVerified = await bcrypt.compare(password, existingUser.password);
-    if (!isVerified) {
-      const error = new Error("Password didn't match");
-      error.statusCode = 401;
+    const isGoogleUser = existingUser.userType === "google";
+    if (isGoogleUser) {
+      const error = new Error("Please log in with Google");
+      error.statusCode = 400;
       return next(error);
     }
 
-    //Token Generation will be done here
-    genToken(existingUser, res);
+    const isPasswordMatch = await bcrypt.compare(
+      password,
+      existingUser.password,
+    );
 
-    //send message to Frontend
-    res.status(200).json({ message: "Login Successfull", data: existingUser });
-    //End
+    if (!isPasswordMatch) {
+      const error = new Error("Password did not match");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      data: existingUser,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-export const UserLogout = async (req, res, next) => {
+export const GoogleUserLogin = async (req, res, next) => {
   try {
-    res.clearCookie("parleG");
-    res.status(200).json({ message: "Logout Successfull" });
+    const { name, email, id, imageUrl } = req.body;
+
+    if (!imageUrl) {
+      //use Defualt Photo Code here
+      //using placehold.co
+    }
+    let existingUser = await User.findOne({ email });
+    const salt = await bcrypt.genSalt(10);
+
+    if (existingUser && existingUser.userType) {
+      if (existingUser.userType === "regular") {
+        console.log("pink");
+        existingUser.userType = "hybrid";
+        existingUser.googleId = bcrypt.hash(id, salt);
+        await existingUser.save();
+      } else {
+        console.log("green");
+        const isVerified = await bcrypt.compare(id, existingUser.googleId);
+        if (!isVerified) {
+          const error = new Error("User Not Verified");
+          error.statusCode = 400;
+          return next(error);
+        }
+      }
+    } else {
+      console.log("orange");
+      const hashGoogleID = await bcrypt.hash(id, salt);
+
+      const newUser = await User.create({
+        fullName: name,
+        email,
+        googleId: hashGoogleID,
+        userType: "google",
+      });
+      existingUser = newUser;
+    }
+
+    //genrate login token if requred
+    res.status(200).json({
+      message: "Login successful",
+      data: existingUser,
+    });
   } catch (error) {
     next(error);
   }
