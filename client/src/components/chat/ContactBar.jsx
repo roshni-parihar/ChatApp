@@ -1,6 +1,7 @@
 import React from "react";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
+import api from "../../config/Api";
 
 const DummyRecentContact = [
   {
@@ -191,24 +192,22 @@ const ContactBar = ({ fetchMode, setReceiver }) => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchContacts = () => {
+  const fetchContacts = async() => {
     // api call
     setLoading(true);
     try {
-      setTimeout(() => {
-        setLoading(false);
+      let res;
+       
         if (fetchMode === "RC") {
           setContacts(DummyRecentContact);
         } else if (fetchMode === "AC") {
-          setContacts(DummyAllContact);
-        } else {
-          setContacts([]);
-        }
-      });
+          res= await api.get("/user/allUsers")
+          setContacts(res.data.data);
+        } 
     } catch (error) {
       toast.error("Failed to load contacts. Please try again.");
     } finally {
-      //setLoading(true);
+      setLoading(true);
     }
   };
   useEffect(() => {
@@ -225,7 +224,7 @@ const ContactBar = ({ fetchMode, setReceiver }) => {
   }
 
   return (
-    <>
+     <>
       <div className="p-2 bg-accent-content h-full flex flex-col gap-2">
         <div className="overflow-y-auto space-y-1">
           {contacts &&
@@ -238,11 +237,11 @@ const ContactBar = ({ fetchMode, setReceiver }) => {
                 }}
               >
                 <h3 className="font-semibold text-accent-content">
-                  {contact.name}
+                  {contact.fullName}
                 </h3>
                 <p className="text-sm text-accent-content">{contact.email}</p>
                 <p className="text-lg font-bold text-accent-content">
-                  {contact.contactNumber}
+                  {contact.mobileNumber}
                 </p>
               </div>
             ))}

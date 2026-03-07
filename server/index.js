@@ -7,6 +7,7 @@ import morgan from "morgan";
 import connectDB from "./src/configs/db.js";
 import cookieParser from "cookie-parser";
 import AuthRouter from "./src/routers/authRouter.js";
+import UserRouter from "./src/routers/userRouter.js";
 const app = express();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
@@ -16,9 +17,11 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/auth", AuthRouter);
+app.use("/user", UserRouter);
+
 
 app.get("/", (req, res) => {
-  console.log("Server is Working");
+  res.status(200).json({ message: "API is running 🚀" });
 });
 
 app.use((err, req, res, next) => {

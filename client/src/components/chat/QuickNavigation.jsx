@@ -1,6 +1,8 @@
 import React from 'react'
+import {useNavigate} from "react-router-dom";
 
-const QuickNavigation = ({setFetchMode}) => {
+const QuickNavigation = ({setFetchMode,fetchMode}) => {
+  const navigate =useNavigate();
   return (
      <>
       <div className="p-2 bg-info-content h-full flex flex-col justify-between">
@@ -14,7 +16,7 @@ const QuickNavigation = ({setFetchMode}) => {
         </div>
 
         <div>
-            <button className="btn btn-ghost btn-sm w-full justify-start">
+            <button className="btn btn-ghost btn-sm w-full justify-start"  onClick={() => navigate("/userDashboard")}>
                 <span className="text-sm">PR</span>
             </button>
         </div>
